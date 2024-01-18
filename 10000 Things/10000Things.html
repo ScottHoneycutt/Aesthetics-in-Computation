@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Phyllotaxis</title>
+	<style>
+		canvas {
+			border: 1px solid black;
+		}
+	</style>
+	<script>
+		"use strict";
+
+		class PhylloFlower {
+			//Constructor----
+			constructor(centerX, centerY, divergence, spacing, fps, dotRadius, ctx) {
+				this.n = 0;
+				this.centerX = centerX;
+				this.centerY = centerY;
+				this.divergence = divergence;
+				this.spacing = spacing;
+				this.fps = fps;
+				this.dotRadius = dotRadius;
+				this.ctx = ctx;
+			}
+
+			//Draw call to draw a new circle at the next location----
+			drawNext(x, y, radius, color) {
+				this.ctx.save();
+				this.ctx.fillStyle = color;
+				this.ctx.beginPath();
+				this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+				this.ctx.closePath();
+				this.ctx.fill();
+				this.ctx.restore();
+			}
+
+			//Helper method. Converts from degrees to radians----
+			degreesToRadians(degrees) {
+				return degrees * (Math.PI / 180);
+			}
+
+			iterate() {
+				//Calculate radius and angle of next dot----
+				let angle = this.n * this.degreesToRadians(this.divergence);
+				let radius = this.spacing * Math.sqrt(this.n);
+
+				//Calculate position of next circle----
+				let x = radius * Math.cos(angle) + this.centerX;
+				let y = radius * Math.sin(angle) + this.centerY;
+
+				//Changing color as we go----
+				let color = `rgb(${(this.n % 10) / 10 * 255},${(this.n % 100) / 100 * 255},255)`;
+				this.drawNext(x, y, this.dotRadius, color);
+				this.n++;
+			}
+		}
+
+		const canvasWidth = 900, canvasHeight = 900;
+		let ctx;
+		let flower;
+		let counter = 0;
+
+		//Kicks things off----
+		const init = () => {
+			let ctx = canvas.getContext("2d");
+			canvas.width = canvasWidth;
+			canvas.height = canvasHeight;
+			ctx.fillRect(0, 0, canvasWidth, canvasHeight)
+
+			//Begin looping----
+			flower = new PhylloFlower(450, 450, 137.3, 4, 60, 2, ctx);
+			loop();
+		}
+
+		//This function loops over and over to make the Phylloflowers do their thing----
+		const loop = () => {
+			for(let i = 0; i < 3; i++){
+				flower.iterate();
+			}
+			//Icrement the count----
+			counter += 3;
+
+			//Call this function again soon if the number of dots is less than 10,000----
+			if (counter < 10000) {
+				setTimeout(loop, 1000 / this.fps);
+			}
+			
+		}
+
+		window.onload = init;
+
+	</script>
+</head>
+
+<body>
+	<canvas id="canvas"></canvas>
+</body>
+
+</html>
