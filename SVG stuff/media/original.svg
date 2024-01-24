@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50%" height="50%" viewBox="0 0 85 85"><g transform="rotate(0, 0, 0)">
+        <rect x="0" y="0" width="85" height="85" stroke="black" stroke-width="1" fill="none"></rect>
+    </g><g transform="rotate(-25, 15, 13)">
+        <rect x="15" y="13" width="10" height="10" stroke="rgb(64, 26, 41)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(-20, 40, 50)">
+        <rect x="40" y="50" width="10" height="10" stroke="rgb(64, 26, 41)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(6, 52, 45)">
+        <rect x="52" y="45" width="10" height="10" stroke="rgb(64, 26, 41)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(-3, 30, 10)">
+        <rect x="30" y="10" width="10" height="10" stroke="rgb(194, 38, 33)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(4, 8, 37)">
+        <rect x="8" y="37" width="10" height="10" stroke="rgb(194, 38, 33)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(-45, 48, 68)">
+        <rect x="48" y="68" width="10" height="10" stroke="rgb(194, 38, 33)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(-45, 12, 30)">
+        <rect x="12" y="30" width="10" height="10" stroke="rgb(230, 65, 60)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(-6, 40, 28)">
+        <rect x="40" y="28" width="10" height="10" stroke="rgb(230, 65, 60)" stroke-width="10" fill="none"></rect>
+    </g><g transform="rotate(20, 65, 65)">
+        <rect x="65" y="65" width="10" height="10" stroke="rgb(230, 65, 60)" stroke-width="10" fill="none"></rect>
+    </g></svg>
