@@ -151,6 +151,36 @@ const addLine = (x1, y1, x2, y2, color, strokeWidth) => {
     svgElement.innerHTML += newLine;
 }
 
+//Creates a new group -SJH
+const addGroup = (inputString) => {
+    let newGroup = 
+    `<g>
+        ${inputString}
+    </g>`;
+}
+
+//Creates a new polgyline using the array of specified points -SJH
+const addPolyLine = (pointArray, color, strokeWidth) =>{
+    let newPolyLine = `<polygon points = "`;
+
+    //Add all the points to the polygon -SJH
+    for (let point of pointArray) {
+        newPolyLine += point + " ";
+    }
+
+    //Then finish off the other properties -SJH
+    newPolyLine += `" stroke="${color}" stroke-width="${strokeWidth}" fill="none"/>`;
+
+    svgElement.innerHTML += newPolyLine;
+}
+
+//Creates a new Path using the specified input string -SJH
+const addPath = (inputString, color, strokeWidth) => {
+    let newPath = `<path d="${inputString}" stroke-width="${strokeWidth}" stroke="${color}"/>`;
+
+    svgElement.innerHTML += newPath;
+}
+
 
 let svgElement;
 init();
