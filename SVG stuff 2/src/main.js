@@ -2,57 +2,33 @@
 
 //Kicks things off -SJH
 const init = () => {
-    createSvg();
+    createSvg(100, 100);
 
-    //Test code for each primitive method -SJH---------------------------------------------------------------
-    // addRotatedRect(50,50, 20,20, 20, "red", 10);
-    // addCircle(70,20, 20, "blue", 4);
-    // addRotatedEllipse(70,70, 5,15, 70, "green", 3);
-    // let pointArray = [`10,20`, `30,20`, `70,10`]
-    // addPolygon(pointArray, "black", 1);
-    // addLine(60,65, 90,20, "Yellow", 6);
+    //Generating a grid of DesOdresPolygons -SJH
+    // for(let i = 0; i < 5; i++)
+    // {
+    //     for (let k = 0; k < 5; k++){
+    //         svgElement.innerHTML += generateDesOrdresPolygon(i*20,k*20, 20,20, 
+    //             -.5,2, 1.5, randomNumber(3, 9), .5, "Black" );
+    //     }
+    // }
 
-    //Recreation of Sainte Victoire En Rouge -SJH--------------------------------------------------
-    //Purple(ish) -SJH
-    // addRotatedRect(15,13, 10,10, -25, "rgb(64, 26, 41)", 10);
-    // addRotatedRect(40,50, 10,10, -20, "rgb(64, 26, 41)", 10);
-    // addRotatedRect(52,45, 10,10, 6, "rgb(64, 26, 41)", 10);
-
-    // //Dark Red -SJH
-    // addRotatedRect(30,10, 10,10, -3, "rgb(194, 38, 33)", 10);
-    // addRotatedRect(8,37, 10,10, 4, "rgb(194, 38, 33)", 10);
-    // addRotatedRect(48,68, 10,10, -45, "rgb(194, 38, 33)", 10);
-
-    // //Light Red -SJH
-    // addRotatedRect(12,30, 10,10, -45, "rgb(230, 65, 60)", 10);
-    // addRotatedRect(40,28, 10,10, -6, "rgb(230, 65, 60)", 10);
-    // addRotatedRect(65,65, 10,10, 20, "rgb(230, 65, 60)", 10);
-
-    //Modified recreation of Sainte Victoire En Rouge -SJH ----------------------------------------
-    //Purple(ish) -SJH
-    addFadeRect(15,13, 10,10, -25, 64,26,41, 10);
-    addFadeRect(40,50, 10,10, -20, 64,26,41, 10);
-    addFadeRect(52,45, 10,10, 6, 64,26,41, 10);
-
-    //Dark Red -SJH
-    addFadeRect(30,10, 10,10, -3, 194,38,33, 10);
-    addFadeRect(8,37, 10,10, 4, 194,38,33, 10);
-    addFadeRect(48,68, 10,10, -45, 194,38,33, 10);
-
-    //Light Red -SJH
-    addFadeRect(12,30, 10,10, -45, 230,65,60, 10);
-    addFadeRect(40,28, 10,10, -6, 230,65,60, 10);
-    addFadeRect(65,65, 10,10, 20, 230,65,60, 10);
+    //Generating Schotter -SJH
+    for (let i = 0; i < 5; i++) {
+        for (let k = 0; k < 10; k++) {
+            //addGroup(addRect(i*20,k*20, 20,20, "Black", .5)//Finish this);
+        }
+    }
 }
 
 //Creates the SVG in the DOM -SJH
-const createSvg = () => {
+const createSvg = (width, height) => {
     document.body.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg"
-        width = "50%" height = "50%" viewbox = "0 0 85 85"></svg>`;
+        width = "50%" height = "50%" viewbox = "0 0 ${width} ${height}"></svg>`;
     svgElement = document.querySelector("svg");
 
     //Creating the border -SJH
-    addRotatedRect(0,0, 85,85, 0, "black", 1);
+    addRotatedRect(0,0, 100,100, 0, "black", 1);
 }
 
 //Creates a rectangle with a given rotation, stroke color, and stroke width -SJH
@@ -63,6 +39,14 @@ const addRotatedRect = (x, y, width, height, rotation, color, strokeWidth) => {
         stroke="${color}" stroke-width=${strokeWidth} fill="none"/>
     </g>`;
     svgElement.innerHTML += newGroup;
+}
+
+//Creates a rectangle with a given stroke color and stroke width -SJH
+const addRect = (x, y, width, height, color, strokeWidth) => {
+    let newRect = `<rect x="${x}" y="${y}" width="${width}" height="${height}" 
+        stroke="${color}" stroke-width=${strokeWidth} fill="none"/>`
+
+    return newRect
 }
 
 //The same as addRotatedRect, but adds a fade effect to each rect. Creates smaller rects 
@@ -141,7 +125,7 @@ const addPolygon = (pointArray, color, strokeWidth) => {
     //Then finish off the other properties -SJH
     newPolygon += `" stroke="${color}" stroke-width="${strokeWidth}" fill="none"/>`;
 
-    svgElement.innerHTML += newPolygon;
+    return newPolygon;
 }
 
 //Creates a line with a given stroke color and stroke width -SJH
@@ -151,15 +135,20 @@ const addLine = (x1, y1, x2, y2, color, strokeWidth) => {
     svgElement.innerHTML += newLine;
 }
 
-//Creates a new group -SJH
-const addGroup = (inputString) => {
+//Creates a new group with a given translation, rotation, and scale -SJH
+const addGroup = (inputString, rotation, rotPointX, rotPointY, translationX, translationY,
+    scaleX, scaleY) => {
     let newGroup = 
-    `<g>
+    `<g transform = "
+    rotate(${rotation}, ${rotPointX}, ${rotPointY}) 
+    translate(${translationX}, ${translationY})
+    scalce(${scaleX}, ${scaleY})">
         ${inputString}
     </g>`;
+    return newGroup;
 }
 
-//Creates a new polgyline using the array of specified points -SJH
+//Creates a new polgyline string using the array of specified points -SJH
 const addPolyLine = (pointArray, color, strokeWidth) =>{
     let newPolyLine = `<polygon points = "`;
 
@@ -171,16 +160,55 @@ const addPolyLine = (pointArray, color, strokeWidth) =>{
     //Then finish off the other properties -SJH
     newPolyLine += `" stroke="${color}" stroke-width="${strokeWidth}" fill="none"/>`;
 
-    svgElement.innerHTML += newPolyLine;
+    return newPolyLine;
 }
 
-//Creates a new Path using the specified input string -SJH
+//Creates a new Path string using the specified input string -SJH
 const addPath = (inputString, color, strokeWidth) => {
     let newPath = `<path d="${inputString}" stroke-width="${strokeWidth}" stroke="${color}"/>`;
 
-    svgElement.innerHTML += newPath;
+    return newPath
 }
 
+//Recursive method that generates a bunch of quadrilateral polygons like in the Desordres art 
+//piece -SJH
+const generateDesOrdresPolygon = (x, y, width, height, minRandom, maxRandom, 
+    shrinkAmmount, recurseCount, strokeWidth, color) => {
+    let pointArray = [
+        `${x + randomNumber(minRandom, maxRandom)}, ${y + randomNumber(minRandom, maxRandom)}`,
+        `${x + randomNumber(minRandom, maxRandom) + width}, ${y+randomNumber(minRandom, maxRandom)}`,
+        `${x + randomNumber(minRandom, maxRandom) + width}, ${y+randomNumber(minRandom, maxRandom) + height}`,
+        `${x + randomNumber(minRandom, maxRandom)}, ${y+randomNumber(minRandom, maxRandom) + height}`];
+    
+    //Adjust values before recursing -SJH
+    x+=shrinkAmmount;
+    y+=shrinkAmmount;
+    minRandom += shrinkAmmount/width;
+    maxRandom -= shrinkAmmount/width;
+    width-=shrinkAmmount*2;
+    height-=shrinkAmmount*2; 
+    recurseCount--;
+
+    //Base case -SJH
+    if (recurseCount <= 0 ||
+        width < maxRandom || 
+        height < maxRandom || 
+        minRandom > maxRandom) {
+        return addPolygon(pointArray, color, strokeWidth);
+    }
+    //Recursive case. Make another polygon inside this one -SJH
+    else {
+        return addPolygon(pointArray, color, strokeWidth) + 
+            generateDesOrdresPolygon(x, y, width, height, minRandom, maxRandom, 
+            shrinkAmmount, recurseCount, strokeWidth, color);
+    }
+    
+} 
+
+//Generates a random number between min (inclusive) and max (exclusive) -SJH
+const randomNumber = (min, max) => {
+    return (Math.random() * (max - min)) + min;
+} 
 
 let svgElement;
 init();
