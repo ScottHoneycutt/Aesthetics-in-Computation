@@ -2,7 +2,7 @@
 
 //Kicks things off -SJH
 const init = () => {
-    createSvg(100, 100);
+    createSvg(100, 200);
 
     //Generating a grid of DesOdresPolygons -SJH
     // for(let i = 0; i < 5; i++)
@@ -16,7 +16,8 @@ const init = () => {
     //Generating Schotter -SJH
     for (let i = 0; i < 5; i++) {
         for (let k = 0; k < 10; k++) {
-            //addGroup(addRect(i*20,k*20, 20,20, "Black", .5)//Finish this);
+            svgElement.innerHTML += addGroup(addRect(i*20,k*20, 20,20, "Black", .5), 
+                randomNumber(-3*k, 3*k), i*20 + 10, k*20 + 10) ;
         }
     }
 }
@@ -28,7 +29,7 @@ const createSvg = (width, height) => {
     svgElement = document.querySelector("svg");
 
     //Creating the border -SJH
-    addRotatedRect(0,0, 100,100, 0, "black", 1);
+    addRotatedRect(0,0, width,height, 0, "black", 1);
 }
 
 //Creates a rectangle with a given rotation, stroke color, and stroke width -SJH
@@ -136,13 +137,14 @@ const addLine = (x1, y1, x2, y2, color, strokeWidth) => {
 }
 
 //Creates a new group with a given translation, rotation, and scale -SJH
-const addGroup = (inputString, rotation, rotPointX, rotPointY, translationX, translationY,
-    scaleX, scaleY) => {
+const addGroup = (inputString, rotation = 0, rotPointX = 0, rotPointY = 0, 
+    translationX = 0, translationY = 0,
+    scaleX = 1, scaleY = 1) => {
     let newGroup = 
     `<g transform = "
     rotate(${rotation}, ${rotPointX}, ${rotPointY}) 
     translate(${translationX}, ${translationY})
-    scalce(${scaleX}, ${scaleY})">
+    scale(${scaleX}, ${scaleY})">
         ${inputString}
     </g>`;
     return newGroup;
