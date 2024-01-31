@@ -14,10 +14,23 @@ const init = () => {
     // }
 
     //Generating Schotter -SJH
+    // for (let i = 0; i < 5; i++) {
+    //     for (let k = 0; k < 10; k++) {
+    //         svgElement.innerHTML += addGroup(addRect(i*20,k*20, 20,20, "Black", .5), 
+    //             randomNumber(-3*k, 3*k),
+    //             i*20 + 10 + randomNumber(-3*k, 3*k), k*20 + 10) + randomNumber(-3*k, 3*k);
+    //     }
+    // }
+
+    //Generating The French Language -SJH
     for (let i = 0; i < 5; i++) {
         for (let k = 0; k < 10; k++) {
-            svgElement.innerHTML += addGroup(addRect(i*20,k*20, 20,20, "Black", .5), 
-                randomNumber(-3*k, 3*k), i*20 + 10, k*20 + 10) ;
+
+            //Behold, the ugliest line of code I've made yet for this class -SJH
+            svgElement.innerHTML += addGroup(generateDesOrdresPolygon(i*20,k*20, 20,20, 
+                -.5,2, 1.5, randomNumber(3, 9), .5, "Black" ), 
+                randomNumber(-3*k, 3*k),
+                i*20 + 10 + randomNumber(-3*k, 3*k), k*20 + 10) + randomNumber(-3*k, 3*k);
         }
     }
 }
