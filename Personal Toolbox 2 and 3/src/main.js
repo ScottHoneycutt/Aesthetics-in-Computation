@@ -22,7 +22,7 @@ const init = () => {
     //     }
     // }
 
-    //Generating The French Language -SJH
+    //Generating combination of both -SJH
     for (let i = 0; i < 5; i++) {
         for (let k = 0; k < 10; k++) {
 
