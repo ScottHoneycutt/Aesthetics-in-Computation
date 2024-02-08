@@ -1,26 +1,42 @@
 "use strict"
-import { noise2d } from "./noise";
+import FastNoiseLite from 'https://unpkg.com/fastnoise-lite@1.1.0/FastNoiseLite.js';
+        
 
 //Kicks things off -SJH
 const init = () => {
-    const canvasSize = 100;
-    createSvg(canvasSize, canvasSize);
-    const gridSize = 10;
-    const spacing = canvasSize/gridSize; 
+    //Setting up noise stuff -SJH
+    let noise = new FastNoiseLite(0);
+    noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+    noise.SetFrequency(.3);
+    let noiseThreshold = .3;
 
+    //Setting up the svg and grid -SJH
+    const svgSize = 100;
+    createSvg(svgSize, svgSize);
+    const gridSize = 30;
+    const spacing = svgSize/gridSize; 
+
+    //Generate the grid of lines with noise holes mixed in -SJH
     for (let x = 0; x < gridSize; x++){
         for (let y = 0; y < gridSize; y++){
-            svgElement.innerHTML += addGroup(
-                addLine(x * spacing, y * spacing, (x+1) * spacing, (y+1) * spacing, "black", .5),
+
+            let noiseValue = noise.GetNoise(x, y, 1);
+            let color = "black";
+            //Only add the lines in spots where the noise has not exceeded noiseThreshold -SJH
+            if (noiseValue < noiseThreshold){
+                //Adjusting color value -SJH
+                let colorNum = (noiseValue + (2 - noiseThreshold)) * 255/2;
+                color = `rgb(${colorNum}, ${colorNum}, ${colorNum})`;
+                //Rendering line -SJH
+                svgElement.innerHTML += addGroup(
+                addLine(x * spacing, y * spacing, (x+1) * spacing, (y+1) * spacing, color, .5),
                 randomNumber(0, 360), 
                 (x +.5) * spacing, 
                 (y+.5) * spacing);
+            }
+            
         }
     }
-
-
-
-
 }
 
 //Creates the SVG in the DOM -SJH
