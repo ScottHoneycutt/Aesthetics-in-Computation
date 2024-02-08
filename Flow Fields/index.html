@@ -1,0 +1,93 @@
+<!-- Demoing SVG transforms: rotate, translate, scale -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <svg id="theSVG"></svg>
+    <script type="module">
+        // Uses the FastNoise Lite library:
+        // https://github.com/Auburn/FastNoiseLite/tree/master/JavaScript#fastnoise-lite
+        import FastNoiseLite from 'https://unpkg.com/fastnoise-lite@1.1.0/FastNoiseLite.js';
+        
+        let noise = new FastNoiseLite(0);
+        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+        noise.SetFrequency(2.11);
+
+        let width = 500;
+        let height = 500;
+        
+        const rect = (props) => {
+            return `<rect width="${props.width}" height="${props.height}" stroke="black" fill="none"/>`
+        }
+
+        const circle = (radius, x, y) => {
+            return `<circle r="${radius}" cx="${x}" cy="${y}" stroke="black" fill="none"/>`
+        }
+
+        const group = (props, ...elems) => {
+            const propsString = props.transform ? `transform="${props.transform}"` : '';
+            
+            return `
+                <g ${propsString}>
+                    ${elems.join('\n')}
+                </g>
+            `
+        };
+
+        const rotate = (degrees, aboutPoint = [0, 0], elem) => {
+            const props = {
+                transform: `rotate(${degrees}, ${aboutPoint[0]}, ${aboutPoint[1]})`
+            };
+
+            return group(props, elem);
+        };
+
+        const translate = (x, y, elem) => {
+            const props = {
+                transform: `translate(${x}, ${y})`
+            };
+
+            return group(props, elem);
+        };
+        
+
+    
+        console.log(noise.GetNoise(5, 6, 0));
+
+        // make a curved path through a few points
+        const theSvg = group({})
+        
+
+        let gridWidth = 10;
+        let gridHeight = 10;
+        let gridOfPoints = [10,10];
+        let randomness = 1;
+        let svg = document.querySelector('svg');
+
+        for (let x = 0; x < gridWidth; x++){
+            for (let y = 0; y < gridHeight; y++){
+
+                let point = {xPos: x + Math.random() * randomness, yPos: y + Math.random() * randomness}
+                gridOfPoints[x, y] = point;
+
+                svg.innerHTML += circle(2, gridOfPoints[x, y].xPos, gridOfPoints[x, y].yPos);
+            }
+        }
+
+        document.querySelector('svg').outerHTML = `
+            <svg width="${width}" height="${height}">
+                ${theSvg}
+            </svg>
+        `
+
+    </script>
+</body>
+</html>
