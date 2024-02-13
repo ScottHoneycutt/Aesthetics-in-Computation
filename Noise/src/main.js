@@ -13,7 +13,7 @@ const init = () => {
     //Setting up the svg and grid -SJH
     const svgSize = 100;
     createSvg(svgSize, svgSize);
-    const gridSize = 30;
+    const gridSize = 50;
     const spacing = svgSize/gridSize; 
 
     //Generate the grid of lines with noise holes mixed in -SJH
@@ -24,9 +24,12 @@ const init = () => {
             let color = "black";
             //Only add the lines in spots where the noise has not exceeded noiseThreshold -SJH
             if (noiseValue < noiseThreshold){
-                //Adjusting color value -SJH
+                
+                //Adjusting color value. Comment or uncomment these two lines of code for 
+                //the variations -SJH
                 let colorNum = (noiseValue + (2 - noiseThreshold)) * 255/2;
                 color = `rgb(${colorNum}, ${colorNum}, ${colorNum})`;
+
                 //Rendering line -SJH
                 svgElement.innerHTML += addGroup(
                 addLine(x * spacing, y * spacing, (x+1) * spacing, (y+1) * spacing, color, .5),
