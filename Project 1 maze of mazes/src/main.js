@@ -15,33 +15,11 @@ const init = () => {
     createSvg(svgSize, svgSize);
     const gridSize = 10;
     const spacing = svgSize/gridSize; 
-    const boolGrid = [gridSize,gridSize];
-    resetBoolGrid(resetBoolGrid, gridSize);
+    let boolGrid = make2DArray(gridSize, gridSize);
+    resetBoolGrid(boolGrid, gridSize);
 
-    // //Generate the grid of lines with noise holes mixed in -SJH
-    // for (let x = 0; x < gridSize; x++){
-    //     for (let y = 0; y < gridSize; y++){
-
-    //         let noiseValue = noise.GetNoise(x, y, 1);
-    //         let color = "black";
-    //         //Only add the lines in spots where the noise has not exceeded noiseThreshold -SJH
-    //         if (noiseValue < noiseThreshold){
-                
-    //             //Adjusting color value. Comment or uncomment these two lines of code for 
-    //             //the variations -SJH
-    //             let colorNum = (noiseValue + (2 - noiseThreshold)) * 255/2;
-    //             color = `rgb(${colorNum}, ${colorNum}, ${colorNum})`;
-
-    //             //Rendering line -SJH
-    //             svgElement.innerHTML += addGroup(
-    //             addLine(x * spacing, y * spacing, (x+1) * spacing, (y+1) * spacing, color, .5),
-    //             randomNumber(0, 360), 
-    //             (x +.5) * spacing, 
-    //             (y+.5) * spacing);
-    //         }
-            
-    //     }
-    // }
+    svgElement.innerHTML += `<polyline points = "` 
+        + createMazeTile(0, 0, boolGrid, gridSize, "black", .5); 
 }
 
 //Creates the SVG in the DOM -SJH
@@ -56,51 +34,63 @@ const createSvg = (width, height) => {
 
 //Resets a grid of booleans to false -SJH
 const resetBoolGrid = (boolGrid, gridSize) => {
+    console.log(boolGrid);
     for (let x = 0; x < gridSize; x++) {
         for (let y = 0; y < gridSize; y++) {
-            boolGrid[x,y] = false;
+            boolGrid[x][y] = false;
         }
     }
+    
 }
 
-//Recursive function. Creates a maze.
+//Creates a 2D array with a specified size -SJH
+function make2DArray(x, y) {
+    let array = [];
+    for (let i = 0; i < x; i++) {
+        let array2 = [];
+        for (let k = 0; k < y; k++){
+            array2.push(false);
+        }
+        array.push(array2);
+    }
+    return array;
+}
+
+//Recursive function. Creates a maze. -SJH
 const createMazeTile = (currentX, currentY, boolGrid, gridSize, color, strokeWidth) => {
     //Mark this grid tile as true (visited) -SJH
     boolGrid[currentX, currentY] = true;
 
     //Check how many false neighbors there are -SJH
-    falseNeighbors = getFalseNeighbors(currentX, currentY, boolGrid, gridSize);
+    let falseNeighbors = getFalseNeighbors(currentX, currentY, boolGrid, gridSize);
 
-    //If no false neighbors, base case. Add the last point and close off the line. -SJH
+    //If no false neighbors, base case. Add the last point and close off the polyline. 
+    //Start a new polyline as well -SJH
     if (falseNeighbors.length == 0){
-        return `${currentX}, ${currentY}" stroke="${color}"
-        stroke-width="${strokeWidth}" fill="none"/>`;
+        return ` ${currentX},${currentY}" stroke="${color}"
+            stroke-width="${strokeWidth}" fill="none"/> <polyline points = "`;
     }
     //If false (unvisited) neighbors, pick randomly between them and recurse in that 
     //direction until there are no more false neighbors -SJH
     else {
-        while (getFalseNeighbors(currentX, currentY, boolGrid, gridSize).length > 0)
-        let chosenPath = falseNeighbors[Math.floor(randomNumber(0, falseNeighbors.length))];
-        let returnString = `${currentX}, ${currentY}` 
-        + createMazeTile(chosenPath.xCoord, chosenPath.yCoord,
-            boolGrid, gridSize, color, strokeWidth)
+        let returnString = "";
+        while (getFalseNeighbors(currentX, currentY, boolGrid, gridSize).length > 0){
+            //Pick a random neighbor -SJH
+            let chosenPath = falseNeighbors[Math.floor(randomNumber(0, falseNeighbors.length))];
+            //Add the current point to the returnString and recurse -SJH
+            returnString += ` ${currentX},${currentY}` 
+            + createMazeTile(chosenPath.xCoord, chosenPath.yCoord,
+                boolGrid, gridSize, color, strokeWidth);
+        }  
+        return returnString;
     }
-
-
-    //After completing the cycle once (IE: making a single branch from the current gridspace), 
-    //loop until all neighbors are false. Each subsequent branch must start with a new 
-    //polyline declaration. -SJH
-    while ()
-    
-
-    
-
 }
 
 //Gets a list of all false neighbors (IE: univisted neighbors) to the specified grid space -SJH
 const getFalseNeighbors = (x, y, boolGrid, gridSize) => {
     let falseNeighborArray = [];
 
+    console.log(x + ", " + y);
     //Only check neighbor if they are inside the range of the grid -SJH
     if (x > 0){
         if (!boolGrid[x - 1, y]){
@@ -108,36 +98,44 @@ const getFalseNeighbors = (x, y, boolGrid, gridSize) => {
                 xCoord: x-1,
                 yCoord: y
             });
+            
         }
+        console.log(boolGrid[x - 1, y]);
     }
     //Only check neighbor if they are inside the range of the grid -SJH
-    if (x < gridSize){
+    if (x < gridSize - 1){
         if (!boolGrid[x + 1, y]){
             falseNeighborArray.push({
                 xCoord: x+1,
                 yCoord: y
             });
+            
         }
+        console.log(boolGrid[x + 1, y]);
     }
     //Only check neighbor if they are inside the range of the grid -SJH
-    if (y> 0){
+    if (y > 0){
         if (!boolGrid[x, y - 1]){
             falseNeighborArray.push({
                 xCoord: x,
                 yCoord: y-1
             });
+            
         }
+        console.log(boolGrid[x, y - 1]);
     }
     //Only check neighbor if they are inside the range of the grid -SJH
-    if (y < gridSize){
+    if (y < gridSize - 1){
+        
         if (!boolGrid[x, y + 1]){
             falseNeighborArray.push({
                 xCoord: x,
                 yCoord: y+1
-            });
+            });  
         }
+        console.log(boolGrid[x, y + 1]);
     }
-
+    console.log(falseNeighborArray);
     return falseNeighborArray;
 }
 
@@ -261,7 +259,7 @@ const addGroup = (inputString, rotation = 0, rotPointX = 0, rotPointY = 0,
 
 //Creates a new polgyline string using the array of specified points -SJH
 const addPolyLine = (pointArray, color, strokeWidth) =>{
-    let newPolyLine = `<polygon points = "`;
+    let newPolyLine = `<polyline points = "`;
 
     //Add all the points to the polygon -SJH
     for (let point of pointArray) {
