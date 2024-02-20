@@ -13,13 +13,13 @@ const init = () => {
     //Setting up the svg and grid -SJH
     const svgSize = 100;
     createSvg(svgSize, svgSize);
-    const gridSize = 10;
-    const spacing = svgSize/gridSize; 
+    const gridSize = 5;
+    const scale = svgSize/gridSize; 
     let boolGrid = make2DArray(gridSize, gridSize);
     resetBoolGrid(boolGrid, gridSize);
 
-    svgElement.innerHTML += `<polyline points = "` 
-        + createMazeTile(0, 0, boolGrid, gridSize, "black", .5); 
+    svgElement.innerHTML += addGroup(`<polyline points = "` 
+    + createMazeTile(0, 0, boolGrid, gridSize, "black", .5), 0, 0, 0, scale/2, scale/2, scale, scale); 
 }
 
 //Creates the SVG in the DOM -SJH
@@ -29,12 +29,11 @@ const createSvg = (width, height) => {
     svgElement = document.querySelector("svg");
 
     //Creating the border -SJH
-    addRotatedRect(0,0, width,height, 0, "black", 1);
+    //addRotatedRect(0,0, width,height, 0, "black", 1);
 }
 
 //Resets a grid of booleans to false -SJH
 const resetBoolGrid = (boolGrid, gridSize) => {
-    console.log(boolGrid);
     for (let x = 0; x < gridSize; x++) {
         for (let y = 0; y < gridSize; y++) {
             boolGrid[x][y] = false;
@@ -59,10 +58,13 @@ function make2DArray(x, y) {
 //Recursive function. Creates a maze. -SJH
 const createMazeTile = (currentX, currentY, boolGrid, gridSize, color, strokeWidth) => {
     //Mark this grid tile as true (visited) -SJH
-    boolGrid[currentX, currentY] = true;
+    boolGrid[currentX][currentY] = true;
+
 
     //Check how many false neighbors there are -SJH
     let falseNeighbors = getFalseNeighbors(currentX, currentY, boolGrid, gridSize);
+    console.log(currentX + ", " + currentY);
+    console.log(falseNeighbors);
 
     //If no false neighbors, base case. Add the last point and close off the polyline. 
     //Start a new polyline as well -SJH
@@ -74,13 +76,15 @@ const createMazeTile = (currentX, currentY, boolGrid, gridSize, color, strokeWid
     //direction until there are no more false neighbors -SJH
     else {
         let returnString = "";
-        while (getFalseNeighbors(currentX, currentY, boolGrid, gridSize).length > 0){
+        while (falseNeighbors.length > 0){
             //Pick a random neighbor -SJH
             let chosenPath = falseNeighbors[Math.floor(randomNumber(0, falseNeighbors.length))];
             //Add the current point to the returnString and recurse -SJH
             returnString += ` ${currentX},${currentY}` 
             + createMazeTile(chosenPath.xCoord, chosenPath.yCoord,
                 boolGrid, gridSize, color, strokeWidth);
+            //Refresh false neighbors for the next iteration after recursion has finished. -SJH
+            falseNeighbors = getFalseNeighbors(currentX, currentY, boolGrid, gridSize)
         }  
         return returnString;
     }
@@ -89,53 +93,48 @@ const createMazeTile = (currentX, currentY, boolGrid, gridSize, color, strokeWid
 //Gets a list of all false neighbors (IE: univisted neighbors) to the specified grid space -SJH
 const getFalseNeighbors = (x, y, boolGrid, gridSize) => {
     let falseNeighborArray = [];
-
-    console.log(x + ", " + y);
+    
     //Only check neighbor if they are inside the range of the grid -SJH
     if (x > 0){
-        if (!boolGrid[x - 1, y]){
+        if (!boolGrid[x - 1][y]){
             falseNeighborArray.push({
                 xCoord: x-1,
                 yCoord: y
             });
             
         }
-        console.log(boolGrid[x - 1, y]);
     }
     //Only check neighbor if they are inside the range of the grid -SJH
     if (x < gridSize - 1){
-        if (!boolGrid[x + 1, y]){
+        if (!boolGrid[x + 1][y]){
             falseNeighborArray.push({
                 xCoord: x+1,
                 yCoord: y
             });
             
         }
-        console.log(boolGrid[x + 1, y]);
     }
     //Only check neighbor if they are inside the range of the grid -SJH
     if (y > 0){
-        if (!boolGrid[x, y - 1]){
+        if (!boolGrid[x][y - 1]){
             falseNeighborArray.push({
                 xCoord: x,
                 yCoord: y-1
             });
             
         }
-        console.log(boolGrid[x, y - 1]);
     }
     //Only check neighbor if they are inside the range of the grid -SJH
     if (y < gridSize - 1){
         
-        if (!boolGrid[x, y + 1]){
+        if (!boolGrid[x][y + 1]){
             falseNeighborArray.push({
                 xCoord: x,
                 yCoord: y+1
             });  
         }
-        console.log(boolGrid[x, y + 1]);
     }
-    console.log(falseNeighborArray);
+
     return falseNeighborArray;
 }
 
