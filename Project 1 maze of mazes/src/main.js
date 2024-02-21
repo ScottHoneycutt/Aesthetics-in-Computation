@@ -13,13 +13,86 @@ const init = () => {
     //Setting up the svg and grid -SJH
     const svgSize = 100;
     createSvg(svgSize, svgSize);
-    const gridSize = 5;
-    const scale = svgSize/gridSize; 
-    let boolGrid = make2DArray(gridSize, gridSize);
-    resetBoolGrid(boolGrid, gridSize);
+    const strokeWidth = .5
+    const tileGridSize = 5;
+    const numTiles = 10;
+    const tileScale = svgSize/tileGridSize/numTiles; 
+    //Preparing outer maze -SJH
+    let outerBoolGrid = make2DBoolArray(numTiles, numTiles);
+    resetBoolGrid(outerBoolGrid, tileGridSize);
+    let outerGridConnections = makeConnectionsArray(numTiles, numTiles);
+    //Preparing tiles -SJH
+    let tileBoolGrid = make2DBoolArray(tileGridSize, tileGridSize);
+    resetBoolGrid(tileBoolGrid, tileGridSize);
 
-    svgElement.innerHTML += addGroup(`<polyline points = "` 
-    + createMazeTile(0, 0, boolGrid, gridSize, "black", .5), 0, 0, 0, scale/2, scale/2, scale, scale); 
+    //Generating outer maze -SJH
+    createOuterMaze(0,0, outerBoolGrid, outerGridConnections, numTiles);
+
+    //Creating maze tiles and their connections-SJH
+    for (let outerX = 0; outerX < numTiles; outerX++) {
+        for (let outerY = 0; outerY < numTiles; outerY++){
+            resetBoolGrid(tileBoolGrid, tileGridSize);
+            //Generate this grid tile -SJH
+            let randomX = Math.floor(randomNumber(0, tileGridSize)); 
+            let randomY = Math.floor(randomNumber(0, tileGridSize));
+
+            //Each tile gets its own group with transformations applied -SJH
+            svgElement.innerHTML += addGroup(
+                `<polyline points = "` + createMazeTile(randomX,randomY,
+                    tileBoolGrid, tileGridSize, "black", strokeWidth),
+                    0, 0, 0,                                                    //Rotation
+                    outerX * tileScale * tileGridSize + strokeWidth,            //Displacement X
+                    outerY * tileScale * tileGridSize + strokeWidth,            //Displacement Y
+                    tileScale, tileScale);                                      //Scale
+            
+            //Generate the connections from this grid by checking outerGridConnections -SJH
+            let exits = outerGridConnections[outerX][outerY].exits;
+            for (let i = 0; i < exits.length; i++){
+                let innerX1;
+                let innerY1;
+                let innerX2;
+                let innerY2;
+                let lineString;
+                //Determine how to connect to the specific connection -SJH
+                //Right -SJH
+                if (outerX < exits.xCoord) {
+                    innerX1 = tileGridSize - 1;
+                    innerX2 = tileGridSize;
+                    innerY1 = Math.floor(randomNumber(0, tileGridSize));
+                    innerY2 = innerY1;
+                }
+                //Left -SJH
+                else if (outerX > exits.xCoord) {
+                    innerX1 = 0;
+                    innerX2 = -1;
+                    innerY1 = Math.floor(randomNumber(0, tileGridSize));
+                    innerY2 = innerY1;
+                }
+                //Up -SJH
+                else if (outerY < exits.yCoord) {
+                    innerX1 = Math.floor(randomNumber(0, tileGridSize));
+                    innerX2 = innerX1;
+                    innerY1 = tileGridSize - 1;
+                    innerY2 = tileGridSize;
+                }
+                //Down -SJH
+                else {
+                    innerX1 = Math.floor(randomNumber(0, tileGridSize));
+                    innerX2 = innerX1;
+                    innerY1 = 0;
+                    innerY2 = -1;
+                }
+
+                //Create the line string and add it to the svg -SJH
+                lineString = addLine(innerX1, innerY1, innerX2, innerY2, "blue", strokeWidth);
+                svgElement.innerHTML += addGroup(lineString,
+                    0, 0, 0,                                                    //Rotation
+                    outerX * tileScale * tileGridSize + strokeWidth,            //Displacement X
+                    outerY * tileScale * tileGridSize + strokeWidth,            //Displacement Y
+                    tileScale, tileScale);                                      //Scale
+            }
+        }
+    }
 }
 
 //Creates the SVG in the DOM -SJH
@@ -42,8 +115,8 @@ const resetBoolGrid = (boolGrid, gridSize) => {
     
 }
 
-//Creates a 2D array with a specified size -SJH
-function make2DArray(x, y) {
+//Creates a 2D boolean array with a specified size -SJH
+const make2DBoolArray = (x, y) => {
     let array = [];
     for (let i = 0; i < x; i++) {
         let array2 = [];
@@ -55,16 +128,58 @@ function make2DArray(x, y) {
     return array;
 }
 
+//Creates a 2D array of objects to hold the connections between grid tiles -SJH
+const makeConnectionsArray = (x, y) => {
+    let array = [];
+    for (let i = 0; i < x; i++) {
+        let array2 = [];
+        for (let k = 0; k < y; k++){
+            //Empty object that will contain one of four values: "up", "down", 
+            array2.push({
+                exits: []
+            });
+        }
+        array.push(array2);
+    }
+    return array;
+}
+
+//Called to create the outer maze that the tiles will be placed in. Recursive function -SJH
+const createOuterMaze = (currentX, currentY, boolGrid, gridConnections, gridSize) => {
+    //Mark this grid tile as true (visited) -SJH
+    boolGrid[currentX][currentY] = true;
+    console.log(currentX + ", " + currentY);
+    //Check how many false neighbors there are -SJH
+    let falseNeighbors = getFalseNeighbors(currentX, currentY, boolGrid, gridSize);
+
+    //If no false neighbors, base case. No exit for this tile. -SJH 
+    if (falseNeighbors.length == 0){
+        return;
+    }
+    //If false (unvisited) neighbors, pick randomly between them and recurse in that 
+    //direction until there are no more false neighbors -SJH
+    else {
+        while (falseNeighbors.length > 0){
+            //Pick a random neighbor -SJH
+            let chosenPath = falseNeighbors[Math.floor(randomNumber(0, falseNeighbors.length))];
+            //Add the exit to this tile and recurse to it -SJH
+            gridConnections[currentX][currentY].exits.push(chosenPath);
+            createOuterMaze(chosenPath.xCoord, chosenPath.yCoord, boolGrid, gridConnections, gridSize);
+            //Refresh false neighbors for the next iteration after recursion has finished. -SJH
+            falseNeighbors = getFalseNeighbors(currentX, currentY, boolGrid, gridSize)
+        }  
+        return;
+    }
+}
+
 //Recursive function. Creates a maze. -SJH
-const createMazeTile = (currentX, currentY, boolGrid, gridSize, color, strokeWidth) => {
+const createMazeTile = (currentX, currentY, boolGrid, gridSize, 
+    color, strokeWidth) => {
     //Mark this grid tile as true (visited) -SJH
     boolGrid[currentX][currentY] = true;
 
-
     //Check how many false neighbors there are -SJH
     let falseNeighbors = getFalseNeighbors(currentX, currentY, boolGrid, gridSize);
-    console.log(currentX + ", " + currentY);
-    console.log(falseNeighbors);
 
     //If no false neighbors, base case. Add the last point and close off the polyline. 
     //Start a new polyline as well -SJH
