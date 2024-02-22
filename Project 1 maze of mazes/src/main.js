@@ -4,17 +4,11 @@ import FastNoiseLite from 'https://unpkg.com/fastnoise-lite@1.1.0/FastNoiseLite.
 
 //Kicks things off -SJH
 const init = () => {
-    //Setting up noise stuff -SJH
-    // let noise = new FastNoiseLite(0);
-    // noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-    // noise.SetFrequency(.3);
-    // let noiseThreshold = .3;
-
     //Setting up the svg and grid -SJH
     const svgSize = 100;
     createSvg(svgSize, svgSize);
-    const strokeWidth = .5
-    const tileGridSize = 5;
+    const strokeWidth = .25;
+    const tileGridSize = 10;
     const numTiles = 10;
     const tileScale = svgSize/tileGridSize/numTiles; 
     //Preparing outer maze -SJH
@@ -55,21 +49,21 @@ const init = () => {
                 let lineString;
                 //Determine how to connect to the specific connection -SJH
                 //Right -SJH
-                if (outerX < exits.xCoord) {
+                if (outerX < exits[i].xCoord) {
                     innerX1 = tileGridSize - 1;
                     innerX2 = tileGridSize;
                     innerY1 = Math.floor(randomNumber(0, tileGridSize));
                     innerY2 = innerY1;
                 }
                 //Left -SJH
-                else if (outerX > exits.xCoord) {
+                else if (outerX > exits[i].xCoord) {
                     innerX1 = 0;
                     innerX2 = -1;
                     innerY1 = Math.floor(randomNumber(0, tileGridSize));
                     innerY2 = innerY1;
                 }
                 //Up -SJH
-                else if (outerY < exits.yCoord) {
+                else if (outerY < exits[i].yCoord) {
                     innerX1 = Math.floor(randomNumber(0, tileGridSize));
                     innerX2 = innerX1;
                     innerY1 = tileGridSize - 1;
@@ -81,10 +75,11 @@ const init = () => {
                     innerX2 = innerX1;
                     innerY1 = 0;
                     innerY2 = -1;
+                    console.log("outer: " + outerX + ", " + outerY + " exits: " + exits[i]);
                 }
 
                 //Create the line string and add it to the svg -SJH
-                lineString = addLine(innerX1, innerY1, innerX2, innerY2, "blue", strokeWidth);
+                lineString = addLine(innerX1, innerY1, innerX2, innerY2, "black", strokeWidth);
                 svgElement.innerHTML += addGroup(lineString,
                     0, 0, 0,                                                    //Rotation
                     outerX * tileScale * tileGridSize + strokeWidth,            //Displacement X
@@ -184,8 +179,17 @@ const createMazeTile = (currentX, currentY, boolGrid, gridSize,
     //If no false neighbors, base case. Add the last point and close off the polyline. 
     //Start a new polyline as well -SJH
     if (falseNeighbors.length == 0){
-        return ` ${currentX},${currentY}" stroke="${color}"
+        //Keep the outside boxy to retain the tiling -SJH
+        if (currentX == 0 || currentX == gridSize-1 || currentY == 0 || currentY == gridSize-1) {
+            return ` ${currentX},${currentY}" stroke="${color}"
             stroke-width="${strokeWidth}" fill="none"/> <polyline points = "`;
+        }
+        //Otherwise, stylize the ending to add more flavor to the maze -SJH
+        else {
+            return ` ${currentX + strokeWidth},${currentY + strokeWidth}" stroke="${color}"
+            stroke-width="${strokeWidth}" fill="none"/> <polyline points = "`;
+        }
+        
     }
     //If false (unvisited) neighbors, pick randomly between them and recurse in that 
     //direction until there are no more false neighbors -SJH
