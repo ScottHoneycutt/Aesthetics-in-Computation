@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Demo Application</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #render {
+            width: 90vmin;
+            height: 90vmin;
+            margin: auto;
+            outline: 1px solid black;
+            
+        }
+
+        div:has(#render) {
+            width: 100%;
+            height: 100vh;
+            min-height: 100vh;
+            max-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        button {         
+            font-size: 1.25em;
+            width: fit-content;
+            height: fit-content;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+    </style>
+</code_to_rewrite>
+</head>
+
+<body>
+    <script src="https://unpkg.com/@jscad/modeling" id="MODELING"></script>
+    <script src="https://unpkg.com/@jscad/regl-renderer"></script>
+
+    <div>
+        <div id="render"></div>
+    </div>
+
+    <script type="module" language="javascript">
+        import { render } from './render.js';
+
+        const { booleans, colors, primitives, transforms } = jscadModeling // modeling comes from the included MODELING library
+
+        const { intersect, subtract, union } = booleans
+        const { colorize, colorNameToRgb } = colors
+        const { cube, cuboid, sphere } = primitives
+
+        const demo = (parameters) => {
+            const size = parameters.size;
+            // let rectPrism = cuboid({ size: [10, 20, 30] });
+            // let newSphere = sphere({radius: 20, segments: 8});
+
+            const shell = subtract( // https://openjscad.xyz/docs/module-modeling_booleans.html#.subtract
+                cube({ size: size }), // https://openjscad.xyz/docs/module-modeling_primitives.html#.cube
+                sphere({ radius: 2/3 * size, segments: 32 }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.sphere
+            );
+            const center = booleans.intersect( // https://openjscad.xyz/docs/module-modeling_booleans.html#.intersect
+                primitives.sphere({ radius: 2/3 * size, segments: 32 }), 
+                primitives.cube({ size: size }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.cuboid
+            );
+            
+            // https://openjscad.xyz/docs/module-modeling_colors.html#.colorize
+            // https://openjscad.xyz/docs/module-modeling_colors.html#.colorNameToRgb
+            return [
+                colorize(colorNameToRgb('orange'), shell),
+                colorize(colorNameToRgb('steelblue'), center),
+                // colorize(colorNameToRgb('steelblue'), newSphere),
+                // rectPrism,
+            ];
+        }
+
+        render(document.getElementById("render"), demo({ size: 40 }))
+
+    </script>
+</body>
+
+</html>
