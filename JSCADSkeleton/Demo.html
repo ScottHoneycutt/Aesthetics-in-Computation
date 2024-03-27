@@ -55,18 +55,11 @@
         const { cube, cuboid, sphere } = primitives
 
         const demo = (parameters) => {
-            const size = parameters.size;
+            const startSize = parameters.size;
             // let rectPrism = cuboid({ size: [10, 20, 30] });
             // let newSphere = sphere({radius: 20, segments: 8});
 
-            const shell = subtract( // https://openjscad.xyz/docs/module-modeling_booleans.html#.subtract
-                cube({ size: size }), // https://openjscad.xyz/docs/module-modeling_primitives.html#.cube
-                sphere({ radius: 2/3 * size, segments: 32 }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.sphere
-            );
-            const center = booleans.intersect( // https://openjscad.xyz/docs/module-modeling_booleans.html#.intersect
-                primitives.sphere({ radius: 2/3 * size, segments: 32 }), 
-                primitives.cube({ size: size }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.cuboid
-            );
+
             
             // https://openjscad.xyz/docs/module-modeling_colors.html#.colorize
             // https://openjscad.xyz/docs/module-modeling_colors.html#.colorNameToRgb
@@ -76,6 +69,36 @@
                 // colorize(colorNameToRgb('steelblue'), newSphere),
                 // rectPrism,
             ];
+        }
+
+        const createRecursiveShell = (iterationsRemaining, size, xCenter, yCenter, zCenter) => {
+            let shellToAdd = createShell(size, xCenter, yCenter, zCenter);
+            if (iterationsRemaining <= 0) {
+                return shellToAdd;
+            }
+            else{
+                iterationsRemaining--;
+                size = size--;
+                return union(shellToAdd, create)
+            }
+
+        }
+
+        //Method to create a shell of sphere/cube subtraction -SJH
+        const createShell = (size, xPos, yPos, zPos) => {
+            const shell = subtract( // https://openjscad.xyz/docs/module-modeling_booleans.html#.subtract
+                cube({ size: size }), // https://openjscad.xyz/docs/module-modeling_primitives.html#.cube
+                sphere({ radius: 2/3 * size, segments: 32 }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.sphere
+            );
+            return shell;
+        }
+        //Method to create a sphere/cube hybrid -SJH
+        const createCenter = (size, xPos, yPos, zPos) => {
+            const center = booleans.intersect( // https://openjscad.xyz/docs/module-modeling_booleans.html#.intersect
+                primitives.sphere({ radius: 2/3 * size, segments: 8 }), 
+                primitives.cube({ size: size }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.cuboid
+            );
+            return center;
         }
 
         render(document.getElementById("render"), demo({ size: 40 }))
