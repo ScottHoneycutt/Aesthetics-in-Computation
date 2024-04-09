@@ -49,55 +49,81 @@
         import { render } from './render.js';
 
         const { booleans, colors, primitives, transforms } = jscadModeling // modeling comes from the included MODELING library
-
-        const { intersect, subtract, union } = booleans
-        const { colorize, colorNameToRgb } = colors
-        const { cube, cuboid, sphere } = primitives
+        const { rotateX, translate } = transforms;
+        const { intersect, subtract, union } = booleans;
+        const { colorize, colorNameToRgb } = colors;
+        const { cube, cuboid, sphere } = primitives;
 
         const demo = (parameters) => {
             const startSize = parameters.size;
             // let rectPrism = cuboid({ size: [10, 20, 30] });
             // let newSphere = sphere({radius: 20, segments: 8});
+            let recursiveTest = 
+            createRecursiveCenter(4, 20, 0,0,0);
+            //union(createCenter(20, 0,0,0), createCenter(20, 10,10,10))
+            //recursiveTest = union(recursiveTest, createCenter(20, 20,20,20))
 
-
-            
             // https://openjscad.xyz/docs/module-modeling_colors.html#.colorize
             // https://openjscad.xyz/docs/module-modeling_colors.html#.colorNameToRgb
             return [
-                colorize(colorNameToRgb('orange'), shell),
-                colorize(colorNameToRgb('steelblue'), center),
+                colorize(colorNameToRgb('orange'), recursiveTest)
+                //colorize(colorNameToRgb('steelblue'), center),
                 // colorize(colorNameToRgb('steelblue'), newSphere),
                 // rectPrism,
             ];
         }
 
         const createRecursiveShell = (iterationsRemaining, size, xCenter, yCenter, zCenter) => {
+            //debugger;
             let shellToAdd = createShell(size, xCenter, yCenter, zCenter);
             if (iterationsRemaining <= 0) {
                 return shellToAdd;
             }
             else{
                 iterationsRemaining--;
-                size = size--;
-                return union(shellToAdd, create)
+                size-=3;
+                shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter + size/1, yCenter + size/2, zCenter));
+                shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter + size/1, yCenter - size/2, zCenter));
+                shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter - size/1, yCenter + size/2, zCenter));
+                shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter - size/1, yCenter - size/2, zCenter));
+                return shellToAdd;
             }
+        }
 
+        const createRecursiveCenter = (iterationsRemaining, size, xCenter, yCenter, zCenter) => {
+            //debugger;
+            let centerToAdd = createCenter(size, xCenter, yCenter, zCenter);
+            if (iterationsRemaining <= 0) {
+                return centerToAdd;
+            }
+            else{
+                iterationsRemaining--;
+                size-=3;
+                //debugger;
+                centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter + size/1, yCenter + size/2, zCenter));
+                centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter + size/1, yCenter - size/2, zCenter));
+                centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter - size/1, yCenter + size/2, zCenter));
+                centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter - size/1, yCenter - size/2, zCenter));
+                return centerToAdd;
+            }
         }
 
         //Method to create a shell of sphere/cube subtraction -SJH
         const createShell = (size, xPos, yPos, zPos) => {
-            const shell = subtract( // https://openjscad.xyz/docs/module-modeling_booleans.html#.subtract
+            let shell = subtract( // https://openjscad.xyz/docs/module-modeling_booleans.html#.subtract
                 cube({ size: size }), // https://openjscad.xyz/docs/module-modeling_primitives.html#.cube
                 sphere({ radius: 2/3 * size, segments: 32 }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.sphere
             );
+            shell = translate([xPos, yPos, zPos], shell)
             return shell;
         }
         //Method to create a sphere/cube hybrid -SJH
         const createCenter = (size, xPos, yPos, zPos) => {
-            const center = booleans.intersect( // https://openjscad.xyz/docs/module-modeling_booleans.html#.intersect
+            let center = booleans.intersect( // https://openjscad.xyz/docs/module-modeling_booleans.html#.intersect
                 primitives.sphere({ radius: 2/3 * size, segments: 8 }), 
                 primitives.cube({ size: size }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.cuboid
             );
+            center = translate([xPos, yPos, zPos], center)
             return center;
         }
 
