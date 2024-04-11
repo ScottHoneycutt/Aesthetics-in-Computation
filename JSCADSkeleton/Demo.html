@@ -58,15 +58,16 @@
             const startSize = parameters.size;
             // let rectPrism = cuboid({ size: [10, 20, 30] });
             // let newSphere = sphere({radius: 20, segments: 8});
-            let recursiveTest = 
-            createRecursiveCenter(4, 20, 0,0,100, 0);
+            let centers = createRecursiveCenter(6, 20, 0,0,100, 0);
+            let shells = createRecursiveShell(6, 20, 0,0,100, Math.PI);
             //union(createCenter(20, 0,0,0), createCenter(20, 10,10,10))
             //recursiveTest = union(recursiveTest, createCenter(20, 20,20,20))
 
             // https://openjscad.xyz/docs/module-modeling_colors.html#.colorize
             // https://openjscad.xyz/docs/module-modeling_colors.html#.colorNameToRgb
             return [
-                colorize(colorNameToRgb('orange'), recursiveTest)
+                colorize(colorNameToRgb('orange'), centers),
+                colorize(colorNameToRgb('orange'), shells)
                 //colorize(colorNameToRgb('steelblue'), center),
                 // colorize(colorNameToRgb('steelblue'), newSphere),
                 // rectPrism,
@@ -81,12 +82,12 @@
             }
             else{
                 iterationsRemaining--;
-                size-=3;
+                size-=1;
                 rotation +=.1;
                 // shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter + size/2, yCenter + size/2, zCenter-(size/2), rotation));
-                shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter, yCenter - size/2, zCenter-(size/2), rotation));
+                shellToAdd = union(shellToAdd, createRecursiveShell(iterationsRemaining, size, xCenter, yCenter - size/1.2, zCenter-(size/2), rotation));
                 // shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter - size/2, yCenter + size/2, zCenter-(size/2), rotation));
-                shellToAdd = union(shellToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter, yCenter + size/2, zCenter-(size/2), rotation));
+                shellToAdd = union(shellToAdd, createRecursiveShell(iterationsRemaining, size, xCenter, yCenter + size/1.2, zCenter-(size/2), rotation));
                 return shellToAdd;
             }
         }
@@ -99,12 +100,12 @@
             }
             else{
                 iterationsRemaining--;
-                size-=3;
+                size-=1;
                 rotation +=.1;
                 //debugger;
-                centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter + size/2, yCenter, zCenter-(size/2), rotation));
+                centerToAdd = union(centerToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter + size/1.2, yCenter, zCenter-(size/2), rotation));
                 // centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter - size/2, yCenter + size/2, zCenter-(size/2), rotation));
-                centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter - size/2, yCenter, zCenter-(size/2), rotation));
+                centerToAdd = union(centerToAdd, createRecursiveCenter(iterationsRemaining, size, xCenter - size/1.2, yCenter, zCenter-(size/2), rotation));
                 // centerToAdd = union(centerToAdd, createRecursiveShell(iterationsRemaining, size, xCenter + size/2, yCenter - size/2, zCenter-(size/2), rotation));
                 return centerToAdd;
             }
@@ -118,16 +119,18 @@
             );
             shell = rotateZ(rotation, shell);
             shell = translate([xPos, yPos, zPos], shell)
+            shell = rotateZ(-rotation, shell);
             return shell;
         }
         //Method to create a sphere/cube hybrid -SJH
         const createCenter = (size, xPos, yPos, zPos, rotation) => {
             let center = booleans.intersect( // https://openjscad.xyz/docs/module-modeling_booleans.html#.intersect
-                primitives.sphere({ radius: 2/3 * size, segments: 8 }), 
+                primitives.sphere({ radius: 2/3 * size, segments: 32 }), 
                 primitives.cube({ size: size }) // https://openjscad.xyz/docs/module-modeling_primitives.html#.cuboid
             );
             center = rotateZ(rotation, center);
             center = translate([xPos, yPos, zPos], center);
+            center = rotateZ(-rotation, center);
             return center;
         }
 
